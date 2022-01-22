@@ -14,12 +14,12 @@ Quick start
 
     INSTALLED_APPS = [
         ...
-        'django-generic-search',
+        'generic-search',
     ]
 
 2. Include the django-generic-search URLconf in your project urls.py like this::
 
-    path('search/', include('django-generic-search.urls')),
+    path('search/', include('generic-search.urls')),
 
 3. include settings below in project settings.py
 
