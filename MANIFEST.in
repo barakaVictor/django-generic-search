@@ -1,0 +1,6 @@
+include LICENSE
+include README.rst
+recursive-include docs *
+recursive-include generic_search/data *
+recursive-include generic_search/templates *
+recursive-include generic_search/static *
