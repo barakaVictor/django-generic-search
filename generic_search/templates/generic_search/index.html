@@ -1,0 +1,45 @@
+{% extends 'site/base.html' %}
+{% load static %}
+    {% block meta %}
+    {{block.super}}
+    {% endblock meta %}
+
+    <!-- Page Title -->
+    {% block title %}
+    Home
+    {% endblock %}
+</head>
+
+<body>
+  {% block body %}
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-md-8">
+          <h4>{{result_count}} results for <span class="fst-italic">{{query}}</span></h4>
+          {% comment %}
+          <form class="form-inline pb-2 b-none" method="GET" action="{% url 'search:general_search' %}">
+            <div class="input-group">
+                <input type="text" class="form-control bd-radius-none" name="q" placeholder="Search...">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-primary custom-inline-button">Go</button>
+                </div>
+            </div>
+        </form>
+        {% endcomment %}
+        <div>
+          {% for object in object_list %}
+            <div class="card mb-2">
+              <div class="card-body">
+                <a href="{{object.url}}" class="card-title d-block">{% if object.title %}{{object.title}} {% else %}{{object.url}}{% endif %}</a>
+                <a href="{{object.url}}" class="card-subtitle mb-2 text-muted d-block fs-6">{{object.url}}</a>
+                {% if object.description %}<p class="card-text">{{object.description|truncatewords:30}}</p>{% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        </div>
+      </div>
+    </div>
+  {% endblock %}
+</body>
+</html>
