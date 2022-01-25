@@ -1,8 +1,8 @@
+from bs4 import BeautifulSoup
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from django.conf import settings
 from ..items import HtmlPage
-from ...utils import generate_tfidf_index
 
 class GammaSpider(CrawlSpider):
     name = 'gammaspider'
@@ -19,9 +19,8 @@ class GammaSpider(CrawlSpider):
         page['description'] = ' '.join(response.xpath('//meta[@name="description"]/@content').get().replace("\n", " ").split()) if response.xpath('//meta[@name="description"]/@content').get() else None
         page['keywords'] = ' '.join(response.xpath('//meta[@name="keywords"]/@content').get().replace("\n", " ").split()) if response.xpath('//meta[@name="keywords"]/@content').get() else None
         page['url'] = response.url
-        #page['contents'] = ' '.join(response.text.replace("\n", " ").split()) if response.text else None
+        page['contents'] = ' '.join(BeautifulSoup(response.text, 'html.parser').get_text().replace("\n", " ").split())
         yield page
 
-    def closed(self, reason):
-        if reason == "finished":
-            generate_tfidf_index()
+    #def closed(self, reason):
+    #    super(GammaSpider, self).closed(reason)
