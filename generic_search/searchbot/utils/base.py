@@ -1,10 +1,4 @@
-import os
-import json
-import pickle
-import math
-import logging
-import string
-import nltk
+import os, json, pickle, math, logging, string, nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize, sent_tokenize
@@ -14,7 +8,7 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 nltk.download('stopwords')
-nltk.download("punkt")
+nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('omw-1.4')
@@ -27,7 +21,7 @@ def generate_tfidf_index():
         os.remove(os.path.join(settings.BASE_DIR, 'crawled_pages/indexed_results'))
     except OSError:
         pass
-    with open(os.path.join(settings.BASE_DIR, 'crawled_pages/clean_data.json'), 'r', encoding="utf8") as f:
+    with open(os.path.join(settings.BASE_DIR, 'crawled_pages/ranking_results.json'), 'r', encoding="utf8") as f:
         try:
             data = json.loads(f.read())
         except json.JSONDecodeError:
@@ -35,7 +29,7 @@ def generate_tfidf_index():
         except Exception as e:
             logger.error(e)
             raise
-
+        corpus_size = len(data)
         for index, document in enumerate(data):
             bag_of_words = ""
             if document['title'] != None:
@@ -53,8 +47,9 @@ def generate_tfidf_index():
                 if word not in tfidf.keys():
                     tfidf[word] = []
                 tf = clean_bag_of_words.count(word)/ len(clean_bag_of_words)
-                idf = compute_idf(word, data)
+                idf = compute_idf(word, data, corpus_size)
                 tfidf[word].append({
+                    'rank': document['rank'],
                     'title':  document['title'],
                     'description': document['description'],
                     'url': document['url'],
@@ -66,9 +61,8 @@ def generate_tfidf_index():
             pickle.dump(tfidf, f)
             logger.debug("Completed indexing exported data")
 
-def compute_idf(word: str, corpus: list) -> float:
+def compute_idf(word: str, corpus: list, corpus_size: int) -> float:
     """Compute the Inverse Document Frequency of the given word in the provided corpus"""
-    corpus_size = len(corpus)
     corpus_items_with_word = [document for document in corpus if word in str(document['title']).lower().translate(str.maketrans('', '', string.punctuation)) or word in str(document['keywords']).lower().translate(str.maketrans('', '', string.punctuation))]
     try:
         return math.log10(corpus_size / (len(corpus_items_with_word) + 1))
@@ -90,6 +84,16 @@ def clean_data():
             logger.error(e)
             raise
         logger.debug("Cleaning data....")
+        #remove links that do not point to any recorded page in the database and duplicates
+        for index in range(len(data)):
+            ok_links = []
+            for link in data[index]['links']:
+                for indx in range(len(data)):
+                    if link == data[index]['url']:
+                        continue
+                    elif link == data[indx]['url']:
+                        ok_links.append(link)
+            data[index]['links'] = list(set(ok_links))
         # Remove punctuations, stopwords, lemmatize and convert to lower case
         for i in range(len(data)):
             data[i]['title'] =' '.join([' '.join(x) for x in [
@@ -126,7 +130,7 @@ def clean_data():
                 ]
             ]).translate(str.maketrans('', '', string.punctuation))
     with open(os.path.join(settings.BASE_DIR, 'crawled_pages/clean_data.json'), 'w', encoding="utf8") as f:
-        json.dump(data, f)
+        json.dump(data, f, indent=4)
         logger.debug(f"Completed cleaning data. clean data at : {os.path.join(settings.BASE_DIR, 'crawled_pages/clean_data.json')}")
 
 def pos_tagger(nltk_tag: str) -> str:
@@ -153,7 +157,6 @@ def query_document_index(query: str) -> list:
     """
     Retrieve documents based on provided query
     """
-    results = []
 
     with open(os.path.join(settings.BASE_DIR, 'crawled_pages/indexed_results'), 'rb') as dbindex:
         indexdata = pickle.load(dbindex)
@@ -167,14 +170,4 @@ def query_document_index(query: str) -> list:
                 for sent in sent_tokenize(query)]
             ]).lower().translate(str.maketrans('', '', string.punctuation))
 
-        for q in search_query.split():
-            try:
-                results.append(indexdata[q])
-            except KeyError as e:
-                logger.error(e)
-                continue
-            except Exception as e:
-                logger.error(e)
-                raise
-
-    return [item for sublist in results for item in sublist]
+        return sorted([item for sublist in list(map(lambda q: indexdata[q] if q in indexdata.keys() else [], search_query.split())) for item in sublist], key=lambda x: x['rank'], reverse=True)

@@ -15,5 +15,5 @@ class GeneralSearch(ListView):
 
     def get_queryset(self):
         q = self.request.GET.get('q')
-        return query_document_index(q) if q and q != '' else []
-
+        results = query_document_index(q) if q and q != '' else []
+        return results

@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
@@ -19,8 +20,6 @@ class GammaSpider(CrawlSpider):
         page['description'] = ' '.join(response.xpath('//meta[@name="description"]/@content').get().replace("\n", " ").split()) if response.xpath('//meta[@name="description"]/@content').get() else None
         page['keywords'] = ' '.join(response.xpath('//meta[@name="keywords"]/@content').get().replace("\n", " ").split()) if response.xpath('//meta[@name="keywords"]/@content').get() else None
         page['url'] = response.url
+        page['links'] = [response.urljoin(x) for x in response.xpath('//a/@href').extract()if bool(urlparse(x).netloc)]
         page['contents'] = ' '.join(BeautifulSoup(response.text, 'html.parser').get_text().replace("\n", " ").split())
         yield page
-
-    #def closed(self, reason):
-    #    super(GammaSpider, self).closed(reason)

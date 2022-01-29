@@ -56,15 +56,19 @@ include settings below in project ``settings.py``
         'gammaspider': ['https://localhost:8000/']
     }
 
-    When in production, update the settings above appropriately to reflect your production environment.
+When in production, update the settings above appropriately to reflect your production environment.
 
 Override the default template used to display the search index and search results page to reflect the theme of
 your site by creating a templates directory in your project root directory. In the created templates directory,
 create a directory with the name ``generic_search`` and place index.html in it. You can copy the template provided in the
 package to the path created above to get a full picture of the available blocks that can be overriden.
 
-Run ``python manage.py crawlsite`` to create an index of the available pages on your site.
-
 Start the development server and visit http://127.0.0.1:8000/
 
-Visit http://127.0.0.1:8000/search/?q=<search-query> to retrieve search results.
+On a new terminal, run the commands below.
+
+Run ``python manage.py crawlsite`` to generate data about available pages on your site.
+Run ``python manage.py cleancrawlresults`` to prepare the data for indexing.
+Run ``python manage.py indexsite`` to generate an index file for the data.
+
+Visit http://127.0.0.1:8000/<url as apecified in your url conf>/?q=<search-query> to search.

@@ -10,10 +10,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
+    'amazon.com'
 ]
 SPYDER_START_URLS = {
     'gammaspider': [
-        'http://localhost:8000/',
+        #'http://localhost:8000/',
+        'https://www.amazon.com/'
         ]
 }
 
