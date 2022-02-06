@@ -51,6 +51,7 @@
 
           {% block search_results %}
           <div>
+
             {% block pagination_page %}
               {% for object in page_obj %}
                 <div class="card mb-2 shadow-sm">
@@ -58,10 +59,13 @@
                     <a href="{{object.url}}" class="card-title d-block text-decoration-none">{% if object.title %}{{object.title|title|truncatewords:15}} {% else %}{{object.url|truncatechars:100}}{% endif %}</a>
                     <a href="{{object.url}}" class="card-subtitle mb-2 text-muted d-block fs-6">{{object.url|truncatechars:150}}</a>
                     {% if object.description %}<p class="card-text">{{object.description|truncatewords:30}}</p>{% endif %}
+                    <p class="card-text">{{object.rank}}</p>
+                    <p class="card-text">{{object.tfidf}}</p>
                   </div>
                 </div>
               {% endfor %}
             {% endblock %}
+            {% if is_paginated %}
             {% block pagination %}
             <nav aria-label="Page navigation example">
               <ul class="pagination">
@@ -80,6 +84,7 @@
               </ul>
             </nav>
             {% endblock %}
+            {% endif %}
           </div>
           {% endblock %}
         </div>

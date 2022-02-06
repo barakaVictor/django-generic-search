@@ -9,7 +9,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'generic_search.searchbot.searchbot.settings')
-        print(get_project_settings())
         c = CrawlerProcess(get_project_settings())
         c.crawl(GammaSpider)
         c.start()

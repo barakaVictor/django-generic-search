@@ -11,10 +11,15 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
 ]
-SPYDER_START_URLS = {
-    'gammaspider': [
-        'http://localhost:8000/',
+SPYDER_CONFIG = {
+    'gammaspider':{
+        'allowed_domains':[
+            'gammaadvocates.co.ke'
+        ],
+        'start_urls':[
+            'https://gammaadvocates.co.ke/'
         ]
+    }
 }
 
 INSTALLED_APPS = [

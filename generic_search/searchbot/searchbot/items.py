@@ -8,7 +8,9 @@ from scrapy import Item, Field
 
 class HtmlPage(Item):
     title = Field()
+    rank = Field()
     description = Field()
     keywords = Field()
     url = Field()
+    links = Field()
     contents = Field()
