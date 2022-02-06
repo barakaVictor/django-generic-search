@@ -7,6 +7,7 @@ from generic_search.utils import pos_tagger
 
 logger = logging.getLogger(__name__)
 
+nltk.download('wordnet')
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
